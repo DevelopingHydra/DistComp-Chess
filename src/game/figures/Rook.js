@@ -1,45 +1,54 @@
 // @flow
 
 import ChessFigure from "./ChessFigure"
+import {getImage, Background, Color, Type, Direction} from "./ChessImage";
+import GameManager from "../GameManager";
 
 class Rook extends ChessFigure {
-    constructor(x, y, canvas) {
-        super(x, y, canvas);
+    constructor(x, y, color: Color, direction: Direction) {
+        super(x, y, color, Type.rook, direction);
     }
 
     canMoveTo: boolean = (x: number, y: number) => {
         return true;
     };
 
-    getPlacesItCanMoveTo = () => {
-        return [];
-    };
+    getPlacesItCanMoveTo: [] = (gameManager: GameManager) => {
+        let fields = [];
+        let isFieldOccupied = false;
 
-    render = () => {
-        const width=this.canvas.width;
-        console.log("rendering rook at: " +
-            "[" + x + ", " + y + "] [" + width + ", " + height + "]");
-        this.canvasContext.fillStyle = "#ccc";
-        this.canvasContext.fillRect(x, y, width, height);
-    };
+        // left
+        for (let i = this.x - 1; i >= 0 && !isFieldOccupied; i--) {
+            isFieldOccupied = gameManager.isFieldOccupied(i, this.y);
+            if (!isFieldOccupied)
+                fields.push({x: i, y: this.y});
+        }
 
-    onMouseEnter = () => {
-        console.log("hovering over rook at: " +
-            "[" + x + ", " + y + "] [" + width + ", " + height + "]");
-        this.canvasContext.fillStyle = "#ddd";
-        this.canvasContext.fillRect(x, y, width, height);
-    };
+        // right
+        isFieldOccupied = false;
+        for (let i = this.x + 1; i <= 7 && !isFieldOccupied; i++) {
+            isFieldOccupied = gameManager.isFieldOccupied(i, this.y);
+            if (!isFieldOccupied)
+                fields.push({x: i, y: this.y});
+        }
 
-    onMouseLeave = () => {
-        console.log("leaving rook");
-        this.render();
-    };
+        // bottom
+        isFieldOccupied = false;
+        for (let i = this.y + 1; i <= 7 && !isFieldOccupied; i++) {
+            isFieldOccupied = gameManager.isFieldOccupied(this.x, i);
+            if (!isFieldOccupied)
+                fields.push({x: this.x, y: i});
+        }
 
-    onClick = () => {
-        console.log("clicking rook at: " +
-            "[" + x + ", " + y + "] [" + width + ", " + height + "]");
-        canvasContext.fillStyle = "#fff";
-        canvasContext.fillRect(x, y, width, height);
+        // top
+        isFieldOccupied = false;
+        for (let i = this.y - 1; i >= 0 && !isFieldOccupied; i--) {
+            isFieldOccupied = gameManager.isFieldOccupied(this.x, i);
+            if (!isFieldOccupied)
+                fields.push({x: this.x, y: i});
+        }
+
+        return fields;
     };
 }
 
