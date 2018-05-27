@@ -1,19 +1,17 @@
 // @flow
 
 import ChessFigure from "./ChessFigure"
-import {getImage, Background, Color, Type, Direction} from "./ChessImage";
-import GameManager from "../GameManager";
+import {getImage, Background, Color, Figure, Direction} from "./ChessImage";
+import BoardManager from "../BoardManager";
+import type {ColorType, DirectionType, FigureType} from "./ChessImage";
+import Point from "../util/Point";
 
 class Bishop extends ChessFigure {
-    constructor(x, y, color: Color, direction: Direction) {
-        super(x, y, color, Type.bishop, direction);
+    constructor(location: Point, color: ColorType, direction: DirectionType) {
+        super(location, color, Figure.bishop, direction);
     }
 
-    canMoveTo: boolean = (x: number, y: number) => {
-        return true;
-    };
-
-    getPlacesItCanMoveTo: [{ x: number, y: number }] = (gameManager: GameManager) => {
+    getPlacesItCanMoveTo = (gameManager: BoardManager): Array<Point> => {
         return [];
     };
 }

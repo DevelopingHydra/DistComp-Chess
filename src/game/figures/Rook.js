@@ -1,55 +1,53 @@
 // @flow
 
 import ChessFigure from "./ChessFigure"
-import {getImage, Background, Color, Type, Direction} from "./ChessImage";
-import GameManager from "../GameManager";
+import {getImage, Background, Color, Figure, Direction} from "./ChessImage";
+import BoardManager from "../BoardManager";
+import type {ColorType, DirectionType} from "./ChessImage";
+import Point from "../util/Point";
 
 class Rook extends ChessFigure {
-    constructor(x, y, color: Color, direction: Direction) {
-        super(x, y, color, Type.rook, direction);
+    constructor(location: Point, color: ColorType, direction: DirectionType) {
+        super(location, color, Figure.rook, direction);
     }
 
-    canMoveTo: boolean = (x: number, y: number) => {
-        return true;
-    };
-
-    getPlacesItCanMoveTo: [] = (gameManager: GameManager) => {
+    getPlacesItCanMoveTo = (gameManager: BoardManager): Array<Point> => {
         let fields = [];
         let isFieldOccupied = false;
 
         // left
-        for (let i = this.x - 1; i >= 0 && !isFieldOccupied; i--) {
-            isFieldOccupied = gameManager.isFieldOccupied(i, this.y);
+        for (let i = this.location.x - 1; i >= 0 && !isFieldOccupied; i--) {
+            isFieldOccupied = gameManager.isFieldOccupied(new Point(i, this.location.y));
             if (!isFieldOccupied)
-                fields.push({x: i, y: this.y});
+                fields.push({x: i, y: this.location.y});
         }
 
         // right
         isFieldOccupied = false;
-        for (let i = this.x + 1; i <= 7 && !isFieldOccupied; i++) {
-            isFieldOccupied = gameManager.isFieldOccupied(i, this.y);
+        for (let i = this.location.x + 1; i <= 7 && !isFieldOccupied; i++) {
+            isFieldOccupied = gameManager.isFieldOccupied(new Point(i, this.location.y));
             if (!isFieldOccupied)
-                fields.push({x: i, y: this.y});
+                fields.push({x: i, y: this.location.y});
         }
 
         // bottom
         isFieldOccupied = false;
-        for (let i = this.y + 1; i <= 7 && !isFieldOccupied; i++) {
-            isFieldOccupied = gameManager.isFieldOccupied(this.x, i);
+        for (let i = this.location.y + 1; i <= 7 && !isFieldOccupied; i++) {
+            isFieldOccupied = gameManager.isFieldOccupied(new Point(this.location.x, i));
             if (!isFieldOccupied)
-                fields.push({x: this.x, y: i});
+                fields.push({x: this.location.x, y: i});
         }
 
         // top
         isFieldOccupied = false;
-        for (let i = this.y - 1; i >= 0 && !isFieldOccupied; i--) {
-            isFieldOccupied = gameManager.isFieldOccupied(this.x, i);
+        for (let i = this.location.y - 1; i >= 0 && !isFieldOccupied; i--) {
+            isFieldOccupied = gameManager.isFieldOccupied(new Point(this.location.x, i));
             if (!isFieldOccupied)
-                fields.push({x: this.x, y: i});
+                fields.push({x: this.location.x, y: i});
         }
 
-        return fields;
-    };
+        return fields.map((field) => new Point(field.x, field.y));
+    }
 }
 
 export default Rook;

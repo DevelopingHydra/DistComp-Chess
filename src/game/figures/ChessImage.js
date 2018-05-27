@@ -4,9 +4,11 @@
 // https://commons.wikimedia.org/wiki/Category:SVG_chess_pieces
 
 export const Color = Object.freeze({
-    white: "d",
-    black: "l"
+    white: "l",
+    black: "d"
 });
+
+export type ColorType = $Values<typeof Color>;
 
 export const Background = Object.freeze({
     light: "l",
@@ -14,12 +16,16 @@ export const Background = Object.freeze({
     none: "t"
 });
 
+export type BackgroundType = $Values<typeof Background>;
+
 export const Direction = Object.freeze({
     normal: "normal",
     opponent: "opponent"
 });
 
-export const Type = Object.freeze({
+export type DirectionType = $Values<typeof Direction>;
+
+export const Figure = Object.freeze({
     king: "k",
     queen: "q",
     rook: "r",
@@ -34,27 +40,29 @@ export const Type = Object.freeze({
     // pawnOpponent: "h"
 });
 
-export function getImage(color: Color, background: Background, figureType: Type, direction: Direction) {
+export type FigureType = $Values<typeof Figure>;
+
+export function getImage(color: ColorType, background: BackgroundType, figureType: FigureType, direction: DirectionType) {
     let url = window.location.href + "images/Chess_";
     let correctType = figureType;
     if (direction === Direction.opponent) {
         switch (figureType) {
-            case Type.king:
+            case Figure.king:
                 correctType = "f";
                 break;
-            case Type.queen:
+            case Figure.queen:
                 correctType = "g";
                 break;
-            case Type.rook:
+            case Figure.rook:
                 correctType = "m";
                 break;
-            case Type.bishop:
+            case Figure.bishop:
                 correctType = "B";
                 break;
-            case Type.knight:
+            case Figure.knight:
                 correctType = "N";
                 break;
-            case Type.pawn:
+            case Figure.pawn:
                 correctType = "h";
                 break;
         }

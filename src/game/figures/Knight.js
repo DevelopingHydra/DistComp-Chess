@@ -1,50 +1,48 @@
 // @flow
 
 import ChessFigure from "./ChessFigure"
-import {getImage, Background, Color, Type, Direction} from "./ChessImage";
-import GameManager from "../GameManager";
+import {getImage, Background, Color, Direction, Figure} from "./ChessImage";
+import BoardManager from "../BoardManager";
+import type {ColorType, DirectionType} from "./ChessImage";
+import Point from "../util/Point";
 
 class Knight extends ChessFigure {
-    constructor(x, y, color: Color, direction: Direction) {
-        super(x, y, color, Type.knight, direction);
+    constructor(location: Point, color: ColorType, direction: DirectionType) {
+        super(location, color, Figure.knight, direction);
     }
 
-    canMoveTo: boolean = (x: number, y: number) => {
-        return true;
-    };
-
-    getPlacesItCanMoveTo: [{ x: number, y: number }] = (gameManager: GameManager) => {
+    getPlacesItCanMoveTo = (gameManager: BoardManager): Array<Point> => {
         const possibleFields = [
             {
-                x: this.x - 2,
-                y: this.y + 1
+                x: this.location.x - 2,
+                y: this.location.y + 1
             }, {
-                x: this.x - 1,
-                y: this.y - 2
+                x: this.location.x - 1,
+                y: this.location.y - 2
             }, {
-                x: this.x + 1,
-                y: this.y - 2
+                x: this.location.x + 1,
+                y: this.location.y - 2
             }, {
-                x: this.x + 2,
-                y: this.y - 1
+                x: this.location.x + 2,
+                y: this.location.y - 1
             }, {
-                x: this.x - 2,
-                y: this.y + 1
+                x: this.location.x - 2,
+                y: this.location.y + 1
             }, {
-                x: this.x - 1,
-                y: this.y + 2
+                x: this.location.x - 1,
+                y: this.location.y + 2
             }, {
-                x: this.x + 1,
-                y: this.y + 2
+                x: this.location.x + 1,
+                y: this.location.y + 2
             }, {
-                x: this.x + 2,
-                y: this.y + 1
+                x: this.location.x + 2,
+                y: this.location.y + 1
             }
         ];
 
         return possibleFields.filter((field: { x: number, y: number }) =>
-            (gameManager.isFieldOnBoard(field.x, field.y) && !gameManager.isFieldOccupied(field.x, field.y))
-        );
+            (gameManager.isFieldOnBoard(new Point(field.x, field.y)) && !gameManager.isFieldOccupied(new Point(field.x, field.y)))
+        ).map((field) => new Point(field.x, field.y));
     };
 }
 

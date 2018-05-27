@@ -1,16 +1,25 @@
 // @flow
 
 import React, {Component} from "react"
-import GameManager from "../game/GameManager";
+import BoardManager from "../game/BoardManager";
 import ChessFigure from "../game/figures/ChessFigure";
 
 import "../css/ChessBoard.css"
 import {Background} from "../game/figures/ChessImage";
+import GameManager from "../game/GameManager";
 
-class ChessBoard extends Component {
+type Props = {};
+type State = {
+    canvasWidth: number,
+    canvasHeight: number,
+    currentFPS: number,
+    message: string
+}
+
+class ChessBoard extends Component<Props, State> {
     lastHoveredFigure: ChessFigure;
     lastClickedFigure: ChessFigure;
-    canvas: object;
+    canvas: Object;
     gameManager: GameManager;
 
     constructor() {
@@ -18,38 +27,47 @@ class ChessBoard extends Component {
 
         this.state = {
             canvasWidth: 300,
-            canvasHeight: 300
+            canvasHeight: 300,
+            currentFPS: 0,
+            message: ""
         };
         this.canvas = React.createRef();
     }
 
     componentDidMount() {
-        this.gameManager = new GameManager(this.canvas.current, (currentFPS) => {
-            this.setState({currentFPS: currentFPS})
-        });
+        this.gameManager = new GameManager(this.canvas.current, this.onUpdateFPS, this.onShowMessage);
         this.gameManager.startGame(); // todo remove
     }
 
-    onMouseClick = (event) => {
-        this.gameManager.onMouseClick(event);
+    onMouseClick = (event: Object): void => {
+        this.gameManager.boardManager.onMouseClick(event);
     };
 
-    onMouseOver = (event) => {
-        this.gameManager.onMouseOver(event);
+    onMouseOver = (event: Object): void => {
+        this.gameManager.boardManager.onMouseOver(event);
     };
 
-    onMouseLeave = () => {
-        this.gameManager.onMouseLeave();
+    onMouseLeave = (): void => {
+        this.gameManager.boardManager.onMouseLeave();
     };
 
-    onChangeBackground=(event)=>{
-        this.gameManager.setFigureBackground(event.target.value);
+    onChangeBackground = (event: Object): void => {
+        this.gameManager.boardManager.setFigureBackground(event.target.value);
+    };
+
+    onUpdateFPS = (currentFPS: number) => {
+        this.setState({currentFPS: currentFPS});
+    };
+
+    onShowMessage = (message: string) => {
+        this.setState({message: message});
     };
 
     render() {
-        return (
-            <div className="chess">
-                <button onClick={this.startGame}>Start game</button>
+        let controls = <React.Fragment/>;
+        if (this.gameManager) {
+            controls = <div>
+                <button onClick={this.gameManager.startGame}>Start game</button>
                 <br/>
                 FPS: {this.state.currentFPS}
                 <br/>
@@ -59,6 +77,12 @@ class ChessBoard extends Component {
                     <option value={Background.light}>Light</option>
                     <option value={Background.dark}>Dark</option>
                 </select>
+            </div>;
+        }
+
+        return (
+            <div className="chess">
+                {controls}
                 <br/>
                 <canvas onClick={this.onMouseClick}
                         onMouseMove={this.onMouseOver}

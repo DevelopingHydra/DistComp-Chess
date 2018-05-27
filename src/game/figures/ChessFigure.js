@@ -1,11 +1,12 @@
 // @flow
 
-import {Background, Color, Direction, getImage, Type} from "./ChessImage";
-import GameManager from "../GameManager";
+import {Background, Color, Direction, getImage} from "./ChessImage";
+import BoardManager from "../BoardManager";
+import type {BackgroundType, ColorType, DirectionType, FigureType} from "./ChessImage";
+import Point from "../util/Point";
 
 class ChessFigure {
-    x: number;
-    y: number;
+    location: Point;
     width: number;
     height: number;
 
@@ -13,18 +14,20 @@ class ChessFigure {
     isMouseOver: boolean;
     isAlive: boolean;
 
-    color: Color;
-    type: Type;
-    direction: Direction;
+    color: ColorType;
+    type: FigureType;
+    direction: DirectionType;
     image: Image;
+    canvas: Object;
+    canvasContext: Object;
+    background: string;
 
-    constructor(x: number, y: number, color: Color,  type: Type, direction: Direction) {
+    constructor(location: Point, color: ColorType, type: FigureType, direction: DirectionType) {
         if (new.target === ChessFigure) {
             throw new TypeError("Cannot construct ChessFigure instances directly");
         }
 
-        this.x = x;
-        this.y = y;
+        this.location = location;
 
         this.isSelected = false;
         this.isAlive = true;
@@ -34,14 +37,7 @@ class ChessFigure {
         this.direction = direction;
     }
 
-    setCanvas: void = (canvas) => {
-        this.canvas = canvas;
-        this.canvasContext = canvas.getContext("2d");
-        this.width = this.canvas.width / 8;
-        this.height = this.canvas.height / 8;
-    };
-
-    updateImage: void = (background: Background) => {
+    updateImage = (background: BackgroundType): void => {
         this.background = background;
         const image = getImage(this.color, this.background, this.type, this.direction);
         image.onload = () => {
@@ -49,47 +45,62 @@ class ChessFigure {
         }
     };
 
-    moveTo: void = (x: number, y: number) => {
-        if (this.canMoveTo(x, y)) {
-            this.x = x;
-            this.y = y;
-        }
+    setCanvas = (canvas: Object): void => {
+        this.canvas = canvas;
+        this.canvasContext = canvas.getContext("2d");
+        this.width = this.canvas.width / 8;
+        this.height = this.canvas.height / 8;
     };
 
-    render = () => {
+    moveTo = (newLocation: Point): void => {
+        this.location = newLocation;
+    };
+
+    render = (): void => {
         if (this.isSelected) {
             this.canvasContext.fillStyle = "#ccc";
-            this.canvasContext.fillRect(this.x * this.width, this.y * this.height, this.width, this.height);
+            this.canvasContext.fillRect(this.location.x * this.width, this.location.y * this.height,
+                this.width, this.height);
         } else if (this.isMouseOver) {
             this.canvasContext.fillStyle = "#ccc";
-            this.canvasContext.fillRect(this.x * this.width, this.y * this.height, this.width, this.height);
+            this.canvasContext.fillRect(this.location.x * this.width, this.location.y * this.height,
+                this.width, this.height);
         }
 
         if (this.image) {
-            this.canvasContext.drawImage(this.image, this.x * this.width, this.y * this.height, this.width, this.height);
+            this.canvasContext.drawImage(this.image, this.location.x * this.width, this.location.y * this.height,
+                this.width, this.height);
         }
     };
 
-    onMouseEnter: void = () => {
+    onMouseEnter = (): void => {
         this.isMouseOver = true;
     };
 
-    onMouseLeave: void = () => {
+    onMouseLeave = (): void => {
         this.isMouseOver = false;
     };
 
-    onClick: void = () => {
+    onClick = (): void => {
         this.isSelected = !this.isSelected;
     };
 
-    kill: void = () => {
+    kill = (): void => {
         this.isAlive = false;
     };
 
-    canMoveTo: boolean = (x: number, y: number) => {
-        throw new Error("This method has to be implemented in a subclass")
+    canMoveTo = (point: Point, boardManager: BoardManager): boolean => {
+        console.log("check if can move from " + this.location.toString() + " to " + point.toString())
+        const fieldsItCanMoveTo = this.getPlacesItCanMoveTo(boardManager);
+        for (const field of fieldsItCanMoveTo) {
+            if (field.x === point.x && field.y === point.y) {
+                return true;
+            }
+        }
+        return false;
     };
-    getPlacesItCanMoveTo: [] = (gameManager:GameManager) => {
+
+    getPlacesItCanMoveTo = (gameManager: BoardManager): Array<Point> => {
         throw new Error("This method has to be implemented in a subclass")
     };
 
